@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Read mrc files, use FFT to downsample them to smaller png files.
-The output png files will have height as 494 px and h/w ratio will be kept.
+The output png files will have height as 512 px (default) and h/w ratio will be kept.
 '''
 
 import mrcfile
