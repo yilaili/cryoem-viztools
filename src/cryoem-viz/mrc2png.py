@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 '''
 Read mrc files, use FFT to downsample them to smaller png files.
-The output png files will have height as 512 px (default) and h/w ratio will be kept.
+The output png files will have height as 512 px (default)
+and h/w ratio will be kept.
 '''
 
 import mrcfile
@@ -26,13 +27,12 @@ def setupParserOptions():
                     type=int,
                     default=512,
                     help='Height of the converted png in px. Default is 512.')
-    ap.add_argument(
-        '--threads',
-        type=int,
-        default=None,
-        help=
-        'Number of threads for conversion. Default is None, using mp.cpu_count(). If get memory error, set it to a reasonable number.'
-    )
+    ap.add_argument('--threads',
+                    type=int,
+                    default=None,
+                    help='Number of threads for conversion. \
+            Default is None, using mp.cpu_count(). \
+                If get memory error, set it to a reasonable number.')
     args = vars(ap.parse_args())
     return args
 

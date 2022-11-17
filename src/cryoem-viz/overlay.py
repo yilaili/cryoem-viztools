@@ -4,7 +4,7 @@ INPUT: mrc and star file (coords) with the same file name.
 OUTPUT: html. Save in odir.
 '''
 
-import numpy as np
+import os
 import starfile
 import mrcfile
 import pandas as pd
@@ -25,16 +25,13 @@ def setupParserOptions():
     ap.add_argument(
         '--oname',
         default=None,
-        help=
-        "Provide the name of the output html. Default is the basename of input file with prefix ls-."
-    )
-    ap.add_argument(
-        '-o',
-        '--odir',
-        default=None,
-        help=
-        'Provide the path to the output directory. Default is current directory.'
-    )
+        help="Provide the name of the output html. Default is the basename of \
+            input file with prefix ls-.")
+    ap.add_argument('-o',
+                    '--odir',
+                    default=None,
+                    help='Provide the path to the output directory. \
+            Default is current directory.')
     ap.add_argument('--height',
                     default=600,
                     help="Height of the scaled image. Default is 600.")
