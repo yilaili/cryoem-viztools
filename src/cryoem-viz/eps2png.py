@@ -15,30 +15,37 @@ def setupParserOptions():
     ap.add_argument('-o',
                     '--odir',
                     help='Provide the path to the output directory.')
+    ap.add_argument('--skipdone',
+                    default=False,
+                    action="store_true",
+                    help='Skip the files already converted.')
     args = vars(ap.parse_args())
     return args
 
 
-def check_file(filename):
-    if filename.endswith(('.eps')):
-        return filename
-    else:
-        return None
+def is_eps(filename):
+    return filename.endswith(('.eps'))
+
+
+def is_done(filename, odir):
+    oname = os.path.splitext(os.path.basename(filename))[0] + '.png'
+    return oname in os.listdir(odir)
 
 
 def eps2png(img_eps, odir):
     im = Image.open(img_eps)
     fig = im.convert('RGBA')
-    oname = img_eps[:-3] + 'png'
+    oname = img_eps[:-4] + '.png'
     fig.save(os.path.join(odir, oname), lossless=True)
 
 
 def main(**args):
-    os.makedirs('postprocess', exist_ok=True)
     for f in glob.glob(args['input']):
-        f = check_file(f)
-        if f is not None:
-            eps2png(f, args['odir'])
+        if is_eps(f):
+            if args['skipdone'] and is_done(f, args['odir']):
+                pass
+            else:
+                eps2png(f, args['odir'])
 
 
 if __name__ == '__main__':

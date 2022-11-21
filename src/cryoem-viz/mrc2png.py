@@ -27,6 +27,10 @@ def setupParserOptions():
                     type=int,
                     default=512,
                     help='Height of the converted png in px. Default is 512.')
+    ap.add_argument('--skipdone',
+                    default=False,
+                    action="store_true",
+                    help='Skip the files already converted.')
     ap.add_argument('--threads',
                     type=int,
                     default=None,
@@ -37,6 +41,15 @@ def setupParserOptions():
     return args
 
 
+def is_mrc(filename):
+    return filename.endswith(('.mrc'))
+
+
+def is_done(filename, odir):
+    oname = os.path.splitext(os.path.basename(filename))[0] + '.png'
+    return oname in os.listdir(odir)
+
+
 def scale_image(img, height):
     newImg = downsample(img, height)
     newImg = ((newImg - newImg.min()) /
@@ -45,20 +58,24 @@ def scale_image(img, height):
     return newImg
 
 
-def save_image(mrc_name, odir, height):
-    if mrc_name.endswith('.mrc'):  # check if file is mrc
-        try:
-            micrograph = mrcfile.open(mrc_name, permissive=True).data
-            micrograph = micrograph.reshape(
-                (micrograph.shape[-2], micrograph.shape[-1]))
-            newImg = scale_image(micrograph, height)
-            newImg.save(
-                os.path.join(
-                    odir,
-                    os.path.splitext(os.path.basename(mrc_name))[0] + '.png'))
-        except ValueError:
-            print('An error occured when trying to save ', mrc_name)
+def save_image(mrc_name, odir, height, skipdone):
+    if is_mrc(mrc_name):  # check if file is mrc
+        if skipdone and is_done(mrc_name, odir):
             pass
+        else:
+            try:
+                micrograph = mrcfile.open(mrc_name, permissive=True).data
+                micrograph = micrograph.reshape(
+                    (micrograph.shape[-2], micrograph.shape[-1]))
+                newImg = scale_image(micrograph, height)
+                newImg.save(
+                    os.path.join(
+                        odir,
+                        os.path.splitext(os.path.basename(mrc_name))[0] +
+                        '.png'))
+            except ValueError:
+                print('An error occured when trying to save ', mrc_name)
+                pass
     else:
         pass
 
@@ -67,11 +84,12 @@ def mrc2png(**args):
     threads = mp.cpu_count() if args['threads'] is None else args['threads']
     with mp.Pool(threads) as pool:
         print('Processing in %d parallel threads....' % threads)
-        pool.starmap(save_image, ((mrc_name, args['odir'], args['height'])
-                                  for mrc_name in glob.glob(args['input'])))
+        pool.starmap(
+            save_image,
+            ((mrc_name, args['odir'], args['height'], args['skipdone'])
+             for mrc_name in glob.glob(args['input'])))
 
 
 if __name__ == '__main__':
     args = setupParserOptions()
-    if os.path.splitext(args['input'])[1] == '.mrc':
-        mrc2png(**args)
+    mrc2png(**args)
