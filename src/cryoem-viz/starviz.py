@@ -12,16 +12,18 @@ def setupParserOptions():
     ap.add_argument(
         '--oname',
         default=None,
-        help="Provide the name of the output html. Default is the basename of \
-            input file with plot type.")
+        help="Provide the name of the output html.\
+             Default is the basename of input file with plot type."
+    )
     ap.add_argument('-o',
                     '--odir',
                     default=None,
                     help='Provide the path to the output directory.')
-    ap.add_argument('-t',
-                    '--type',
-                    help='Type of the star file. Support `micrograph` and \
-            `particles` for now.')
+    ap.add_argument(
+        '-t',
+        '--type',
+        help='Type of the star file.\
+             Support `micrograph` and `particles` for now.')
     ap.add_argument(
         '--plot',
         help='Type of the plot. Support `scatter` and `histogram` for now.')
