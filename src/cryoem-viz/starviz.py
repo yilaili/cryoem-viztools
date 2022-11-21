@@ -6,15 +6,14 @@ import plotly.graph_objects as go
 
 def setupParserOptions():
     ap = argparse.ArgumentParser()
-    ap.add_argument(
-        '-i',
-        '--input',
-        help="Provide the path to the input star file.")
+    ap.add_argument('-i',
+                    '--input',
+                    help="Provide the path to the input star file.")
     ap.add_argument(
         '--oname',
         default=None,
-        help=
-        "Provide the name of the output html. Default is the basename of input file with plot type."
+        help="Provide the name of the output html.\
+             Default is the basename of input file with plot type."
     )
     ap.add_argument('-o',
                     '--odir',
@@ -23,13 +22,15 @@ def setupParserOptions():
     ap.add_argument(
         '-t',
         '--type',
-        help=
-        'Type of the star file. Support `micrograph` and `particles` for now.')
+        help='Type of the star file.\
+             Support `micrograph` and `particles` for now.')
     ap.add_argument(
         '--plot',
         help='Type of the plot. Support `scatter` and `histogram` for now.')
-    ap.add_argument('--plotx', help='x axis for scatter plot. e.g. rlnCoordinateX')
-    ap.add_argument('--ploty', help='y axis for scatter plot. e.g. rlnCoordinateY')
+    ap.add_argument('--plotx',
+                    help='x axis for scatter plot. e.g. rlnCoordinateX')
+    ap.add_argument('--ploty',
+                    help='y axis for scatter plot. e.g. rlnCoordinateY')
     args = vars(ap.parse_args())
     return args
 
