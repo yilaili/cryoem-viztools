@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 '''
 Read mrc files, use FFT to downsample them to smaller png files.
-The output png files will have height as 512 px (default) and h/w ratio will be kept.
+The output png files will have height as 512 px (default)
+and h/w ratio will be kept.
 '''
 
 import mrcfile
@@ -26,13 +27,12 @@ def setupParserOptions():
                     type=int,
                     default=512,
                     help='Height of the converted png in px. Default is 512.')
-    ap.add_argument(
-        '--threads',
-        type=int,
-        default=None,
-        help=
-        'Number of threads for conversion. Default is None, using mp.cpu_count(). If get memory error, set it to a reasonable number.'
-    )
+    ap.add_argument('--threads',
+                    type=int,
+                    default=None,
+                    help='Number of threads for conversion.\
+             Default is None, using mp.cpu_count().\
+                 If get memory error, set it to a reasonable number.')
     args = vars(ap.parse_args())
     return args
 
@@ -46,17 +46,20 @@ def scale_image(img, height):
 
 
 def save_image(mrc_name, odir, height):
-    try:
-        micrograph = mrcfile.open(mrc_name, permissive=True).data
-        micrograph = micrograph.reshape(
-            (micrograph.shape[-2], micrograph.shape[-1]))
-        newImg = scale_image(micrograph, height)
-        newImg.save(
-            os.path.join(
-                odir,
-                os.path.splitext(os.path.basename(mrc_name))[0] + '.png'))
-    except ValueError:
-        print('An error occured when trying to save ', mrc_name)
+    if mrc_name.endswith('.mrc'):  # check if file is mrc
+        try:
+            micrograph = mrcfile.open(mrc_name, permissive=True).data
+            micrograph = micrograph.reshape(
+                (micrograph.shape[-2], micrograph.shape[-1]))
+            newImg = scale_image(micrograph, height)
+            newImg.save(
+                os.path.join(
+                    odir,
+                    os.path.splitext(os.path.basename(mrc_name))[0] + '.png'))
+        except ValueError:
+            print('An error occured when trying to save ', mrc_name)
+            pass
+    else:
         pass
 
 
