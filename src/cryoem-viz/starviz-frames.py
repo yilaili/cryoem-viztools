@@ -27,6 +27,10 @@ def setupParserOptions():
                     help='y axis for scatter plot. e.g. rlnCoordinateY')
     ap.add_argument(
         '--plotz', help='Color map to plot for scatter plot. e.g. rlnAngleRot')
+    ap.add_argument('--subset',
+                    default=1.0,
+                    help='Take a subset (0 to 1) of the particles.\
+                         Default is 1, which uses the full dataset.')
     ap.add_argument('--fixedratio',
                     default=True,
                     action="store_true",
@@ -36,11 +40,13 @@ def setupParserOptions():
     return args
 
 
-def readstarfile(input):
+def readstarfile(input, subset):
     dfs = []
     for f in sorted(glob.glob(input)):
-        df = starfile.read(f)
-        dfs.append(df['particles'].select_dtypes(include='number'))
+        df = starfile.read(f)['particles']
+        if subset < 1.0:
+            df = df.sample(frac=subset)
+        dfs.append(df.select_dtypes(include='number'))
     return dfs
 
 
@@ -165,7 +171,7 @@ def plot_scatter_frames(dfs, plot_x, plot_y, plot_z, fixedratio):
 
 
 def main(**args):
-    df = readstarfile(args['input'])
+    df = readstarfile(args['input'], float(args['subset']))
     if args['plot'] == 'scatter':
         fig = plot_scatter_frames(df, args['plotx'], args['ploty'],
                                   args['plotz'], args['fixedratio'])

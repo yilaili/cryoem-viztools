@@ -23,14 +23,20 @@ def setupParserOptions():
                     '--size',
                     default=2,
                     help='Marker size for plotting.')
+    ap.add_argument('--subset',
+                    default=1.0,
+                    help='Take a subset (0 to 1) of the particles.\
+                         Default is 1, which uses the full dataset.')
 
     args = vars(ap.parse_args())
     return args
 
 
-def readstarfile(input):
-    df = starfile.read(input)
-    return df['particles'].select_dtypes(include='number')
+def readstarfile(input, subset):
+    df = starfile.read(input)['particles']
+    if subset < 1.0:
+        df = df.sample(frac=subset)
+    return df.select_dtypes(include='number')
 
 
 def prep_sphere(r=0.99):
@@ -161,7 +167,7 @@ def plot(df, x, y, z, X, Y, Z, marker_size):
 
 
 def main(**args):
-    df = readstarfile(args['input'])
+    df = readstarfile(args['input'], float(args['subset']))
     X, Y, Z = prep_sphere(r=0.99)
     x, y, z = prep_particles(df)
 

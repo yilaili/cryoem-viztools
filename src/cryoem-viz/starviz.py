@@ -28,6 +28,10 @@ def setupParserOptions():
                     help='x axis for scatter plot. e.g. rlnCoordinateX')
     ap.add_argument('--ploty',
                     help='y axis for scatter plot. e.g. rlnCoordinateY')
+    ap.add_argument('--subset',
+                    default=1.0,
+                    help='Take a subset (0 to 1) of the particles.\
+                         Default is 1, which uses the full dataset.')
     ap.add_argument('--fixedratio',
                     default=True,
                     action="store_true",
@@ -37,12 +41,13 @@ def setupParserOptions():
     return args
 
 
-def readstarfile(input, type):
-    df = starfile.read(input)
+def readstarfile(input, type, subset):
     if type == 'micrographs':
-        return df['micrographs'].select_dtypes(include='number')
+        df = starfile.read(input)['micrographs']
     if type == 'particles':
-        return df['particles'].select_dtypes(include='number')
+        df = starfile.read(input)['particles']
+    if subset < 1.0:
+        df = df.sample(frac=subset).select_dtypes(include='number')
 
 
 def plot_scatter(df, plot_x, plot_y, fixedratio):
@@ -176,7 +181,7 @@ def plot_histogram(df):
 
 
 def main(**args):
-    df = readstarfile(args['input'], args['type'])
+    df = readstarfile(args['input'], args['type'], float(args['subset']))
     if args['plot'] == 'scatter':
         fig = plot_scatter(df, args['plotx'], args['ploty'],
                            args['fixedratio'])
