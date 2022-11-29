@@ -68,7 +68,7 @@ def main(**args):
 
         img_h = args['height']
         factor = img_h / img.shape[0]
-        img_w = int(img.shape[1] * factor)
+        # img_w = int(img.shape[1] * factor)
         img = downsample(img, img_h)
 
         a = df['rlnAutopickFigureOfMerit'].to_numpy()
@@ -158,7 +158,7 @@ def main(**args):
 
         fig.update_layout(
             sliders=sliders,
-            width=img_w,
+            # width=img_w,
             height=img_h,
             margin={
                 "l": 0,
@@ -172,6 +172,11 @@ def main(**args):
 
         fig.update_xaxes(visible=False)
         fig.update_yaxes(visible=False)
+
+        fig.update_yaxes(
+            scaleanchor="x",
+            scaleratio=1,
+        )
 
         # fig.show(config={'responsive': False})
         # BELOW: save as html

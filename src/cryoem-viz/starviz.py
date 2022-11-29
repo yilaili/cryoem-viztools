@@ -9,20 +9,17 @@ def setupParserOptions():
     ap.add_argument('-i',
                     '--input',
                     help="Provide the path to the input star file.")
-    ap.add_argument(
-        '--oname',
-        default=None,
-        help="Provide the name of the output html.\
-             Default is the basename of input file with plot type."
-    )
+    ap.add_argument('--oname',
+                    default=None,
+                    help="Provide the name of the output html.\
+             Default is the basename of input file with plot type.")
     ap.add_argument('-o',
                     '--odir',
                     default=None,
                     help='Provide the path to the output directory.')
-    ap.add_argument(
-        '-t',
-        '--type',
-        help='Type of the star file.\
+    ap.add_argument('-t',
+                    '--type',
+                    help='Type of the star file.\
              Support `micrograph` and `particles` for now.')
     ap.add_argument(
         '--plot',
@@ -31,19 +28,29 @@ def setupParserOptions():
                     help='x axis for scatter plot. e.g. rlnCoordinateX')
     ap.add_argument('--ploty',
                     help='y axis for scatter plot. e.g. rlnCoordinateY')
+    ap.add_argument('--subset',
+                    default=1.0,
+                    help='Take a subset (0 to 1) of the particles.\
+                         Default is 1, which uses the full dataset.')
+    ap.add_argument('--fixedratio',
+                    default=True,
+                    action="store_true",
+                    help='x y ratio is fixed to be 1. Only useful for scatter.\
+                         Default is true.')
     args = vars(ap.parse_args())
     return args
 
 
-def readstarfile(input, type):
-    df = starfile.read(input)
+def readstarfile(input, type, subset):
     if type == 'micrographs':
-        return df['micrographs'].select_dtypes(include='number')
+        df = starfile.read(input)['micrographs']
     if type == 'particles':
-        return df['particles'].select_dtypes(include='number')
+        df = starfile.read(input)['particles']
+    if subset < 1.0:
+        df = df.sample(frac=subset).select_dtypes(include='number')
 
 
-def plot_scatter(df, plot_x, plot_y):
+def plot_scatter(df, plot_x, plot_y, fixedratio):
     fig = go.Figure()
 
     for z in df.columns:
@@ -88,22 +95,29 @@ def plot_scatter(df, plot_x, plot_y):
              yanchor="top"),
     ]
 
-    fig.update_layout(xaxis_title=plot_x,
-                      yaxis_title=plot_y,
-                      width=700,
-                      height=700,
-                      autosize=False,
-                      margin=dict(t=50, b=0, l=0, r=0),
-                      updatemenus=updatemenus,
-                      annotations=[
-                          dict(text="Color",
-                               x=0,
-                               xref="paper",
-                               y=1.07,
-                               yref="paper",
-                               align="left",
-                               showarrow=False)
-                      ])
+    fig.update_layout(
+        xaxis_title=plot_x,
+        yaxis_title=plot_y,
+        #   width=700,
+        height=700,
+        autosize=False,
+        margin=dict(t=50, b=0, l=0, r=0),
+        updatemenus=updatemenus,
+        annotations=[
+            dict(text="Color",
+                 x=0,
+                 xref="paper",
+                 y=1.07,
+                 yref="paper",
+                 align="left",
+                 showarrow=False)
+        ])
+
+    if fixedratio:
+        fig.update_yaxes(
+            scaleanchor="x",
+            scaleratio=1,
+        )
 
     return fig
 
@@ -167,9 +181,10 @@ def plot_histogram(df):
 
 
 def main(**args):
-    df = readstarfile(args['input'], args['type'])
+    df = readstarfile(args['input'], args['type'], float(args['subset']))
     if args['plot'] == 'scatter':
-        fig = plot_scatter(df, args['plotx'], args['ploty'])
+        fig = plot_scatter(df, args['plotx'], args['ploty'],
+                           args['fixedratio'])
     elif args['plot'] == 'histogram':
         fig = plot_histogram(df)
 
