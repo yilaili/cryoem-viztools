@@ -168,7 +168,7 @@ def main(**args):
 
     if args['oname'] is None:
         oname = 'ls-' + os.path.splitext(os.path.basename(
-            args[input]))[0] + '.html'
+            args['input']))[0] + '.html'
     else:
         oname = args['oname']
     if args['odir'] is None:
