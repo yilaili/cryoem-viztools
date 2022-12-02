@@ -1,6 +1,8 @@
 # CryoEM-viztools
 
-**Better visualization for cryo-EM. Still in dev and welcome to any suggestions and contributions!**
+**Better visualization for cryo-EM.** 
+
+*Still in dev and welcome to any suggestions and contributions!*
 
 **INPUT**: Usual cryo-EM file formats, including `mrc(s)` and `star` files.  
 **OUTPUT**: Either images or static html file.
