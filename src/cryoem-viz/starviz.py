@@ -48,6 +48,9 @@ def readstarfile(input, type, subset):
         df = starfile.read(input)['particles']
     if subset < 1.0:
         df = df.sample(frac=subset).select_dtypes(include='number')
+    else:
+        df = df.select_dtypes(include='number')
+    return df
 
 
 def plot_scatter(df, plot_x, plot_y, fixedratio):
