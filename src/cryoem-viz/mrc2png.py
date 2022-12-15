@@ -23,6 +23,9 @@ def setupParserOptions():
     ap.add_argument('-o',
                     '--odir',
                     help='Provide the path to the output directory.')
+    ap.add_argument('--prefix',
+                    default='',
+                    help='Provide the prefix of the out name.')
     ap.add_argument('--height',
                     type=int,
                     default=512,
@@ -58,7 +61,7 @@ def scale_image(img, height):
     return newImg
 
 
-def save_image(mrc_name, odir, height, skipdone):
+def save_image(mrc_name, odir, height, skipdone, prefix):
     if is_mrc(mrc_name):  # check if file is mrc
         if skipdone and is_done(mrc_name, odir):
             pass
@@ -71,7 +74,8 @@ def save_image(mrc_name, odir, height, skipdone):
                 newImg.save(
                     os.path.join(
                         odir,
-                        os.path.splitext(os.path.basename(mrc_name))[0] +
+                        os.path.splitext(prefix +
+                                         os.path.basename(mrc_name))[0] +
                         '.png'))
             except ValueError:
                 print('An error occured when trying to save ', mrc_name)
@@ -84,10 +88,9 @@ def mrc2png(**args):
     threads = mp.cpu_count() if args['threads'] is None else args['threads']
     with mp.Pool(threads) as pool:
         print('Processing in %d parallel threads....' % threads)
-        pool.starmap(
-            save_image,
-            ((mrc_name, args['odir'], args['height'], args['skipdone'])
-             for mrc_name in glob.glob(args['input'])))
+        pool.starmap(save_image, ((mrc_name, args['odir'], args['height'],
+                                   args['skipdone'], args['prefix'])
+                                  for mrc_name in glob.glob(args['input'])))
 
 
 if __name__ == '__main__':
